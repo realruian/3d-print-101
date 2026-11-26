@@ -1,156 +1,13 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>3D 打印入门课</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<style>
-/* 布局：文档式单栏阅读。左侧一列安静的目录，右侧正文；每章一块浅灰底的“演示台”，左边 3D、右边控制。
-   规范：圆角只有三档（控件 8 / 提示块 12 / 演示台 20），间距取 4 的倍数，字号五档。 */
-:root {
-  --bg: #FFFFFF; --panel: #F5F5F7; --track: #E4E4E9; --knob: #FFFFFF;
-  --ink: #1D1D1F; --ink-2: #63636A; --hair: #D2D2D7;
-  --accent: #0066CC; --accent-fill: #0071E3; --on-accent: #FFFFFF;
-  --select: #B9D7FB; --tint: #E6F0FD; --focus: #5AA5F0; --shadow: rgba(0, 0, 0, .14);
-  --r-s: 8px; --r-m: 12px; --r-l: 20px;
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0C0C0D; --panel: #1C1C1E; --track: #2C2C2E; --knob: #5A5A5F;
-    --ink: #F5F5F7; --ink-2: #A1A1A6; --hair: #38383A;
-    --accent: #4BA6FF; --accent-fill: #0071E3; --on-accent: #FFFFFF;
-    --select: #1F4E8C; --tint: #12305A; --focus: #4BA6FF; --shadow: rgba(0, 0, 0, .5); color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0C0C0D; --panel: #1C1C1E; --track: #2C2C2E; --knob: #5A5A5F;
-  --ink: #F5F5F7; --ink-2: #A1A1A6; --hair: #38383A;
-  --accent: #4BA6FF; --accent-fill: #0071E3; --on-accent: #FFFFFF;
-  --select: #1F4E8C; --tint: #12305A; --focus: #4BA6FF; --shadow: rgba(0, 0, 0, .5); color-scheme: dark;
-}
-* { box-sizing: border-box; }
-::selection { background: var(--select); }
-body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
-:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-
-.shell { display: grid; grid-template-columns: 208px minmax(0, 1fr); gap: 64px; max-width: 1120px; margin: 0 auto;
-  padding-block: 48px 96px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
-main { min-width: 0; display: flex; flex-direction: column; gap: 96px; }
-
-/* 目录 */
-.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 32px); align-self: start; display: flex; flex-direction: column; gap: 16px; }
-.toc-title { font-size: 15px; font-weight: 600; margin: 0; padding: 0 12px; }
-.toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-.toc a, .toc .soon { display: flex; gap: 12px; padding: 6px 12px; border-radius: var(--r-s); font-size: 15px; line-height: 1.45; color: var(--ink-2); text-decoration: none; }
-.toc a:hover { color: var(--ink); }
-.toc a[aria-current="true"] { background: var(--panel); color: var(--ink); font-weight: 600; }
-.toc .n { min-width: 1.4em; font-variant-numeric: tabular-nums; }
-.toc-label { font-size: 13px; color: var(--ink-2); margin: 8px 0 0; padding: 0 12px; }
-
-/* 开场 */
-.intro h1 { font-size: clamp(34px, 5.2vw, 56px); line-height: 1.08; font-weight: 700; letter-spacing: -.02em; margin: 0 0 20px; text-wrap: balance; }
-.intro p { font-size: 21px; line-height: 1.5; color: var(--ink-2); max-width: 32em; margin: 0 0 12px; }
-.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 40px 0 0; padding-top: 24px; border-top: 1px solid var(--hair); }
-.facts div { min-width: 0; }
-.facts dt { font-size: 13px; color: var(--ink-2); }
-.facts dd { margin: 4px 0 0; font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
-
-/* 章节 */
-.ch { display: flex; flex-direction: column; gap: 20px; scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 32px); }
-.ch h2 { font-size: clamp(26px, 3.4vw, 32px); line-height: 1.2; font-weight: 700; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
-.ch p.lead { max-width: 38em; margin: 0; }
-.term { font-weight: 600; }
-
-.bench { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); background: var(--panel); border-radius: var(--r-l); overflow: hidden; margin-top: 12px; }
-.stage { position: relative; min-height: 420px; height: 100%; min-width: 0; max-width: 100%; cursor: grab; }
-.stage:active { cursor: grabbing; }
-.stage canvas { width: 100%; height: 100%; display: block; touch-action: pan-y; }
-.stage .hint { position: absolute; left: 20px; bottom: 16px; font-size: 13px; color: var(--ink-2); pointer-events: none; }
-.stage .fail { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--ink-2); font-size: 15px; }
-.panel { padding: 24px; display: flex; flex-direction: column; gap: 20px; min-width: 0; border-left: 1px solid var(--hair); }
-.panel h3 { margin: 0; font-size: 15px; font-weight: 600; }
-.field { display: flex; flex-direction: column; gap: 8px; }
-.field label, .field .lab { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
-.field output { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-input[type=range] { width: 100%; accent-color: var(--accent-fill); margin: 0; }
-
-button { font: inherit; font-size: 15px; line-height: 1.35; color: var(--ink); border: 0; border-radius: var(--r-s); padding: 8px 14px; cursor: pointer; background: var(--track); }
-button:disabled { opacity: .45; cursor: default; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips button:hover { color: var(--accent); }
-.chips button[aria-pressed="true"] { background: var(--accent-fill); color: var(--on-accent); }
-.seg { display: inline-flex; align-self: flex-start; max-width: 100%; background: var(--track); padding: 2px; border-radius: var(--r-s); gap: 2px; }
-.seg button { background: transparent; padding: 6px 14px; border-radius: 6px; color: var(--ink-2); }
-.seg button[aria-pressed="true"] { background: var(--knob); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px var(--shadow); }
-button.go { background: var(--accent-fill); color: var(--on-accent); font-weight: 600; align-self: flex-start; }
-button.go:hover:not(:disabled) { filter: brightness(1.08); }
-
-.check { display: flex; gap: 8px; align-items: center; font-size: 15px; }
-.check input { accent-color: var(--accent-fill); width: 18px; height: 18px; margin: 0; }
-.read { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; font-size: 15px; margin: 0; padding-top: 20px; border-top: 1px solid var(--hair); }
-.read dt { color: var(--ink-2); }
-.read dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
-.note { font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 0; }
-.note b { color: var(--ink); font-weight: 600; }
-.info { font-size: 15px; line-height: 1.6; margin: 0; min-height: 6.4em; color: var(--ink-2); }
-.info b { display: block; font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
-.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--ink-2); }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
-
-.where { background: var(--panel); border-radius: var(--r-m); padding: 16px 20px; font-size: 15px; line-height: 1.6; }
-.where b { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 2px; }
-.next { background: var(--panel); border-radius: var(--r-m); padding: 20px 24px; font-size: 15px; color: var(--ink-2); }
-.next b { color: var(--ink); font-weight: 600; }
-
-/* “在软件里”：照着 Bambu Studio 的面板画的示意，和上面的演示联动 */
-.app { display: flex; flex-direction: column; gap: 16px; margin-top: 12px; }
-.app-head h3 { margin: 0; font-size: 17px; font-weight: 600; }
-.app-head p { margin: 4px 0 0; font-size: 15px; color: var(--ink-2); max-width: 40em; }
-.app-body { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 32px; align-items: start; }
-.mock { border: 1px solid var(--hair); border-radius: var(--r-m); overflow: hidden; font-size: 13px; line-height: 1.4; background: var(--bg); }
-.mock-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--hair); font-weight: 600; }
-.mock-pill { display: inline-flex; background: var(--track); border-radius: var(--r-s); padding: 2px; font-weight: 400; }
-.mock-pill i { font-style: normal; padding: 1px 8px; border-radius: 6px; color: var(--ink-2); }
-.mock-pill i:first-child { background: var(--accent-fill); color: var(--on-accent); }
-.mock-adv { margin-left: auto; font-weight: 400; color: var(--ink-2); display: flex; gap: 6px; align-items: center; }
-.mock-adv i { width: 22px; height: 12px; border-radius: 6px; background: var(--track); display: block; }
-.mock-preset { padding: 10px 12px 4px; }
-.mock-preset select { width: 100%; font: inherit; padding: 5px 8px; border: 1px solid var(--hair); border-radius: 6px; background: var(--bg); color: var(--ink); }
-.mock-tabs { display: flex; gap: 16px; padding: 8px 12px 0; border-bottom: 1px solid var(--hair); color: var(--ink-2); }
-.mock-tabs span { padding-bottom: 6px; }
-.mock-tabs span[aria-current="true"] { color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent-fill); }
-.mock-group { padding: 10px 12px 2px; font-weight: 600; margin: 0; }
-.mock button.mock-row { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 12px 6px 24px; background: transparent; border-radius: 0; font-size: 13px; text-align: left; }
-.mock button.mock-row:hover { background: var(--panel); }
-.mock button.mock-row[aria-pressed="true"], .mock-preset[aria-pressed="true"] { background: var(--tint); }
-.mock-row .v { width: 104px; padding: 3px 8px; border: 1px solid var(--hair); border-radius: 6px; background: var(--bg); display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
-.mock-row .v small { color: var(--ink-2); font-size: 12px; }
-.mock-row .box { width: 14px; height: 14px; border: 1px solid var(--hair); border-radius: 3px; background: var(--bg); margin-right: 90px; }
-.mock-end { height: 8px; }
-.app-info { min-width: 0; display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
-.app-info h4 { margin: 0; font-size: 17px; font-weight: 600; }
-.app-info p { margin: 0; color: var(--ink-2); line-height: 1.6; max-width: 34em; }
-.tag { align-self: flex-start; font-size: 13px; padding: 2px 10px; border-radius: var(--r-s); background: var(--track); color: var(--ink-2); }
-.tag.now { background: var(--tint); color: var(--accent); font-weight: 600; }
-.app-info dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 16px; margin: 4px 0 0; padding-top: 12px; border-top: 1px solid var(--hair); }
-.app-info dt { color: var(--ink-2); } .app-info dd { margin: 0; }
-
-@media (max-width: 880px) {
-  .app-body { grid-template-columns: minmax(0, 1fr); gap: 20px; }
-  body { font-size: 16px; }
-  .shell { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 24px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-  .toc { position: static; }
-  .toc-title, .toc-label, .toc .later { display: none; }
-  .toc ol { flex-direction: row; flex-wrap: wrap; gap: 8px; }
-  .toc a { background: var(--panel); padding: 6px 12px; }
-  main { gap: 72px; }
-  .intro p { font-size: 18px; }
-  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; margin-top: 28px; }
-  .bench { grid-template-columns: minmax(0, 1fr); }
-  .stage { min-height: 0; height: auto; aspect-ratio: 4 / 3; }
-  .panel { border-left: 0; border-top: 1px solid var(--hair); padding: 20px; }
-}
-</style>
-
+<meta name="description" content="从零开始的 3D 打印交互课程：每章一个可以拖动、可以拨弄的 3D 演示，并对照切片软件里的设置。">
+<link rel="stylesheet" href="assets/course.css">
+</head>
+<body>
 <div class="shell">
   <aside class="toc">
     <p class="toc-title">3D 打印入门课</p>
@@ -159,27 +16,25 @@ button.go:hover:not(:disabled) { filter: brightness(1.08); }
         <li><a href="#ch1"><span class="n">1</span>认识机器</a></li>
         <li><a href="#ch2"><span class="n">2</span>从模型到实物</a></li>
         <li><a href="#ch3"><span class="n">3</span>层高</a></li>
+        <li><a href="#ch4"><span class="n">4</span>一层是怎么画出来的</a></li>
         <li><a href="#ch5"><span class="n">5</span>墙和填充</a></li>
         <li><a href="#ch6"><span class="n">6</span>摆放和支撑</a></li>
-      </ol>
-      <p class="toc-label">即将推出</p>
-      <ol class="later">
-        <li><span class="soon"><span class="n">4</span>一层是怎么画出来的</span></li>
-        <li><span class="soon"><span class="n">7</span>第一层</span></li>
-        <li><span class="soon"><span class="n">8</span>材料</span></li>
-        <li><span class="soon"><span class="n">9</span>多色和双喷嘴</span></li>
-        <li><span class="soon"><span class="n">10</span>为打印而设计</span></li>
-        <li><span class="soon"><span class="n">11</span>故障图鉴</span></li>
-        <li><span class="soon"><span class="n">12</span>日常维护</span></li>
+        <li><a href="#ch7"><span class="n">7</span>第一层</a></li>
+        <li><a href="#ch8"><span class="n">8</span>材料</a></li>
+        <li><a href="#ch9"><span class="n">9</span>多色和双喷嘴</a></li>
+        <li><a href="#ch10"><span class="n">10</span>为打印而设计</a></li>
+        <li><a href="#ch11"><span class="n">11</span>故障图鉴</a></li>
+        <li><a href="#ch12"><span class="n">12</span>日常维护</a></li>
+        <li><a href="#ch13"><span class="n">13</span>软件全景</a></li>
       </ol>
     </nav>
   </aside>
 
   <main>
     <header class="intro">
-      <h1>把塑料线变成东西，只需要弄懂五件事</h1>
-      <p>每一章有一个可以拖着转、用滑块拨着玩的 3D 演示。拨一拨，就知道某个设置到底改变了什么。</p>
-      <p>例子都来自你桌上那台机器：两个喷嘴、一个四槽料盒，装着一卷黑色 PLA。</p>
+      <h1>把塑料线变成东西，一章弄懂一件事</h1>
+      <p>每一章有一个可以拖着转、用滑块拨着玩的 3D 演示，下面紧跟着切片软件里对应的那一块设置。拨一拨，就知道某个选项到底改变了什么。</p>
+      <p>例子都来自一台双喷嘴、带四槽料盒的全封闭打印机，装着一卷黑色 PLA。</p>
       <dl class="facts">
         <div><dt>打印范围</dt><dd>256 × 256 × 260 mm</dd></div>
         <div><dt>喷嘴</dt><dd>0.4 mm × 2</dd></div>
@@ -201,7 +56,10 @@ button.go:hover:not(:disabled) { filter: brightness(1.08); }
           <p class="note">模型是按真机结构画的示意，比例和细节不是精确复刻。</p>
         </div>
       </div>
-      <div class="where"><b>在 Bambu Studio 里</b>“设备”页面能看到这些部件的实时状态：两个喷嘴和热床的温度、AMS 四个槽里装了什么，还有一个方向盘可以让打印头和热床移动。</div>
+      <div class="app">
+        <div class="app-head"><h3>在 Bambu Studio 里</h3><p>“准备”页面左上角的“打印机”区域，告诉软件你用的是什么机器、什么喷嘴。点一行，上面的模型里对应的部件会亮起来。</p></div>
+        <div class="app-body"><div class="mock" id="mock1"></div><div class="app-info" id="mock1Info" aria-live="polite"></div></div>
+      </div>
     </section>
 
     <section class="ch" id="ch2">
@@ -225,7 +83,10 @@ button.go:hover:not(:disabled) { filter: brightness(1.08); }
           <p class="note">为了看得清，这里把每一层画得很厚。真实的一层只有约 0.2 毫米，一个 4 厘米高的东西有 200 层。</p>
         </div>
       </div>
-      <div class="where"><b>在 Bambu Studio 里</b>“准备”页面放模型、选设置；点右上角“切片单盘”后自动跳到“预览”页面，右侧的竖条滑块就是在一层一层地看。</div>
+      <div class="app">
+        <div class="app-head"><h3>在 Bambu Studio 里</h3><p>窗口最上面那一排。三个阶段正好对应三个页面：在“准备”里放模型，点“切片单盘”后到“预览”检查，点“打印单盘”发给机器后在“设备”里看进度。点这里的按钮，上面的演示会跟着切换。</p></div>
+        <div class="app-body wide"><div class="mock" id="mock2"></div><div class="app-info" id="mock2Info" aria-live="polite"></div></div>
+      </div>
     </section>
 
     <section class="ch" id="ch3">
@@ -242,44 +103,45 @@ button.go:hover:not(:disabled) { filter: brightness(1.08); }
           <dl class="read">
             <dt>这个圆顶要打</dt><dd id="lhLayers">—</dd>
             <dt>相对 0.20 mm 的耗时</dt><dd id="lhTime">—</dd>
-            <dt>你的奖杯（4 cm 高）</dt><dd id="lhTrophy">—</dd>
+            <dt>一个 4 cm 高的奖杯</dt><dd id="lhTrophy">—</dd>
           </dl>
           <p class="note">时间按“层数翻倍、时间约翻倍”粗略估算，真实数字以切片结果为准。<b>0.20 mm 是默认档，适合绝大多数东西。</b></p>
         </div>
       </div>
-      <div class="app" id="app3">
-        <div class="app-head">
-          <h3>在 Bambu Studio 里</h3>
-          <p>“准备”页面左下角的“工艺”区域长这样。点任意一行看它是什么；拨上面的层高，或者在这里换预设，两边会一起变。</p>
-        </div>
-        <div class="app-body">
-          <div class="mock" role="group" aria-label="Bambu Studio 工艺面板示意">
-            <div class="mock-bar"><span>工艺</span><span class="mock-pill"><i>全局</i><i>对象</i></span><span class="mock-adv">高级<i></i></span></div>
-            <div class="mock-preset" data-k="preset">
-              <select id="mockPreset" aria-label="工艺预设">
-                <option value="0.08">0.08mm Extra Fine @BBL X2D</option>
-                <option value="0.12">0.12mm Fine @BBL X2D</option>
-                <option value="0.16">0.16mm Optimal @BBL X2D</option>
-                <option value="0.20" selected>0.20mm Standard @BBL X2D</option>
-                <option value="0.24">0.24mm Draft @BBL X2D</option>
-                <option value="0.28">0.28mm Extra Draft @BBL X2D</option>
-              </select>
-            </div>
-            <div class="mock-tabs"><span aria-current="true">质量</span><span>强度</span><span>支撑</span><span>其他</span></div>
-            <p class="mock-group">层高</p>
-            <button type="button" class="mock-row" data-k="lh"><span>层高</span><span class="v"><span id="mockLh">0.2</span><small>mm</small></span></button>
-            <button type="button" class="mock-row" data-k="first"><span>首层层高</span><span class="v"><span>0.2</span><small>mm</small></span></button>
-            <button type="button" class="mock-row" data-k="mix"><span>混色子层</span><span class="box"></span></button>
-            <p class="mock-group">接缝</p>
-            <button type="button" class="mock-row" data-k="seam"><span>接缝位置</span><span class="v"><span>对齐</span></span></button>
-            <p class="mock-group">高级</p>
-            <button type="button" class="mock-row" data-k="top1"><span>顶面单层墙</span><span class="v"><span>顶面</span></span></button>
-            <button type="button" class="mock-row" data-k="first1"><span>首层仅单层墙</span><span class="box"></span></button>
-            <div class="mock-end"></div>
+      <div class="app">
+        <div class="app-head"><h3>在 Bambu Studio 里</h3><p>“准备”页面左下角的“工艺”区域，“质量”标签页。拨上面的层高，或者在这里换预设，两边会一起变。</p></div>
+        <div class="app-body"><div class="mock" id="mock3"></div><div class="app-info" id="mock3Info" aria-live="polite"></div></div>
+      </div>
+    </section>
+
+    <section class="ch" id="ch4">
+      <h2>一层是怎么画出来的：先描边，再涂满</h2>
+      <p class="lead">每一层都按同一个顺序画：先沿着轮廓画<span class="term">外墙</span>，再在里面画<span class="term">内墙</span>，最后用来回的线把中间填上。喷嘴画完一圈回到起点，接头的地方会留下一个小痕迹，叫<span class="term">接缝</span>。每一层都有一个接缝，它们排在哪，由你决定。</p>
+      <div class="bench">
+        <div class="stage" id="st4"><span class="hint">拖动旋转，红点是每层的接缝</span></div>
+        <div class="panel">
+          <h3>画最上面这一层</h3>
+          <div class="field">
+            <label for="pathPos">画到哪了 <output id="pathOut">填充</output></label>
+            <input type="range" id="pathPos" min="0" max="100" step="1" value="100">
           </div>
-          <div class="app-info" id="appInfo3" aria-live="polite"></div>
+          <button class="go" id="playPath" type="button">从头画一遍</button>
+          <div class="field">
+            <span class="lab">接缝位置</span>
+            <div class="seg" id="seamBtns">
+              <button type="button" data-seam="aligned" aria-pressed="true">对齐</button>
+              <button type="button" data-seam="nearest" aria-pressed="false">最近</button>
+              <button type="button" data-seam="back" aria-pressed="false">背面</button>
+              <button type="button" data-seam="random" aria-pressed="false">随机</button>
+            </div>
+          </div>
+          <div class="legend"><span><i style="background:#D9912B"></i>外墙</span><span><i style="background:#EDC27A"></i>内墙</span><span><i style="background:#5B8DB8"></i>填充</span><span><i style="background:#D8432E"></i>接缝</span></div>
+          <p class="note" id="seamNote"></p>
         </div>
-        <p class="note">界面是照着 Bambu Studio 2.9 中文版画的示意，不是真的软件。预设的具体名称以你软件里显示的为准。</p>
+      </div>
+      <div class="app">
+        <div class="app-head"><h3>在 Bambu Studio 里</h3><p>还是“工艺”区域的“质量”标签页，这一章讲的是下面两组。在这里换接缝位置，上面的红点会跟着挪。</p></div>
+        <div class="app-body"><div class="mock" id="mock4"></div><div class="app-info" id="mock4Info" aria-live="polite"></div></div>
       </div>
     </section>
 
@@ -303,7 +165,7 @@ button.go:hover:not(:disabled) { filter: brightness(1.08); }
             <div class="seg" id="patBtns">
               <button type="button" data-pat="grid" aria-pressed="true">网格</button>
               <button type="button" data-pat="lines" aria-pressed="false">直线</button>
-              <button type="button" data-pat="tri" aria-pressed="false">三角</button>
+              <button type="button" data-pat="tri" aria-pressed="false">三角形</button>
             </div>
           </div>
           <label class="check"><input type="checkbox" id="lid"> 盖上顶面</label>
@@ -315,7 +177,10 @@ button.go:hover:not(:disabled) { filter: brightness(1.08); }
           <p class="note" id="strengthNote"></p>
         </div>
       </div>
-      <div class="where"><b>在 Bambu Studio 里</b>“工艺”区域的“强度”标签页：墙层数、顶部和底部壳体层数、稀疏填充密度、填充图案都在这里。默认是 2 圈墙、15% 网格。</div>
+      <div class="app">
+        <div class="app-head"><h3>在 Bambu Studio 里</h3><p>“工艺”区域的“强度”标签页。上面拨墙层数和填充密度，这里的数字跟着变；在这里换填充图案，上面的剖面也会变。</p></div>
+        <div class="app-body"><div class="mock" id="mock5"></div><div class="app-info" id="mock5Info" aria-live="polite"></div></div>
+      </div>
     </section>
 
     <section class="ch" id="ch6">
@@ -348,483 +213,192 @@ button.go:hover:not(:disabled) { filter: brightness(1.08); }
           <p class="note" id="poseNote"></p>
         </div>
       </div>
-      <div class="where"><b>在 Bambu Studio 里</b>选中模型后，上方工具栏有“自动朝向”和“选择底面”，用来换摆放方向；“工艺”区域的“支撑”标签页里勾选“开启支撑”。你的奖杯就是靠“背面朝下躺着打”避开了所有悬空。</div>
+      <div class="app">
+        <div class="app-head"><h3>在 Bambu Studio 里</h3><p>摆放用的是模型上方的工具栏，支撑在“工艺”区域的“支撑”标签页。勾选这里的“开启支撑”，上面的演示会同步显示支撑。</p></div>
+        <div class="app-body"><div class="mock" id="mock6"></div><div class="app-info" id="mock6Info" aria-live="polite"></div></div>
+      </div>
     </section>
 
-    <p class="next"><b>接下来会补上另外七章：</b>一层是怎么画出来的、第一层、材料、多色和双喷嘴、为打印而设计、故障图鉴、日常维护。</p>
+    <section class="ch" id="ch7">
+      <h2>第一层：粘得住，后面才有得打</h2>
+      <p class="lead">打印失败多半出在第一层。第一层的线要被喷嘴轻轻压扁、贴在板上：压得不够，线是圆的，一碰就掉；压得太狠，料挤不出来，表面起棱。喷嘴离板多高由机器开打前自动校准，你要管的是另外三件事：板子干净、板子够热、必要时加一圈<span class="term">裙边</span>。</p>
+      <div class="bench">
+        <div class="stage" id="st7"><span class="hint">拖动旋转</span></div>
+        <div class="panel">
+          <h3>看什么</h3>
+          <div class="seg" id="viewBtns7">
+            <button type="button" data-v="squish" aria-pressed="true">线压得多扁</button>
+            <button type="button" data-v="brim" aria-pressed="false">裙边</button>
+          </div>
+          <div class="field" id="fieldGap">
+            <label for="gap">喷嘴离板的距离 <output id="gapOut">0.20 mm</output></label>
+            <input type="range" id="gap" min="0.08" max="0.36" step="0.02" value="0.20">
+          </div>
+          <div class="field" id="fieldBrim" hidden>
+            <label for="brim">裙边宽度 <output id="brimOut">0 mm</output></label>
+            <input type="range" id="brim" min="0" max="8" step="1" value="0">
+          </div>
+          <p class="note" id="firstNote"></p>
+          <p class="note">“离板距离”这个滑块只是让你看懂现象。真机上它由自动热床调平负责，不需要手动设。</p>
+        </div>
+      </div>
+      <div class="app">
+        <div class="app-head"><h3>在 Bambu Studio 里</h3><p>“工艺”区域的“其他”标签页最上面一组，叫“热床粘接”。上面拨裙边宽度，这里跟着变。</p></div>
+        <div class="app-body"><div class="mock" id="mock7"></div><div class="app-info" id="mock7Info" aria-live="polite"></div></div>
+      </div>
+    </section>
+
+    <section class="ch" id="ch8">
+      <h2>材料：先把 PLA 用熟，再碰别的</h2>
+      <p class="lead">耗材不同，要的温度、好不好打、打出来能干什么都不一样。点一种材料看它的脾气。下面的温度是常见范围，实际以那卷耗材包装上印的为准。</p>
+      <div class="bench solo">
+        <div class="chips" id="matBtns"></div>
+        <div class="matcard" id="matCard"></div>
+      </div>
+      <div class="app">
+        <div class="app-head"><h3>在 Bambu Studio 里</h3><p>“准备”页面左侧中间的“项目耗材列表”。选了哪种耗材，软件就按它的温度和速度来切片。上面点一种材料，这里的耗材名跟着换。</p></div>
+        <div class="app-body"><div class="mock" id="mock8"></div><div class="app-info" id="mock8Info" aria-live="polite"></div></div>
+      </div>
+    </section>
+
+    <section class="ch" id="ch9">
+      <h2>多色和双喷嘴：换颜色是有代价的</h2>
+      <p class="lead">只有一个喷嘴时，换一次颜色要做三件事：把旧料退出去、把新料送进来、再挤掉一截混了色的料。挤掉的这截叫<span class="term">冲刷</span>，直接变成废料，还要多花一两分钟。两个喷嘴各装一种颜色就不用这样折腾，轮到谁谁上，几乎不浪费。</p>
+      <div class="bench">
+        <div class="stage" id="st9"><span class="hint">拖动旋转</span></div>
+        <div class="panel">
+          <h3>打一个双色方块</h3>
+          <div class="seg" id="modeBtns9">
+            <button type="button" data-m="single" aria-pressed="true">一个喷嘴换料</button>
+            <button type="button" data-m="dual" aria-pressed="false">两个喷嘴各一种</button>
+          </div>
+          <div class="field">
+            <label for="swaps">换色次数 <output id="swapsOut">6 次</output></label>
+            <input type="range" id="swaps" min="0" max="15" step="1" value="6">
+          </div>
+          <div class="legend"><span><i style="background:#D9912B"></i>颜色一</span><span><i style="background:#5B8DB8"></i>颜色二</span><span><i style="background:#8A94A1"></i>擦料塔</span><span><i style="background:#9B6FB0"></i>冲刷废料</span></div>
+          <dl class="read">
+            <dt>变成废料</dt><dd id="wasteOut">—</dd>
+            <dt>多花的时间</dt><dd id="timeOut9">—</dd>
+          </dl>
+          <p class="note" id="colorNote"></p>
+          <p class="note">每次换色的废料和时间按常见情况估算，真实数字看切片结果。</p>
+        </div>
+      </div>
+      <div class="app">
+        <div class="app-head"><h3>在 Bambu Studio 里</h3><p>和多色有关的设置分在两处：耗材列表上方的“冲刷体积”，以及“其他”标签页里的“擦料塔”和“换料冲刷选项”。</p></div>
+        <div class="app-body"><div class="mock" id="mock9"></div><div class="app-info" id="mock9Info" aria-live="polite"></div></div>
+      </div>
+    </section>
+
+    <section class="ch" id="ch10">
+      <h2>为打印而设计：三条最常用的规矩</h2>
+      <p class="lead">自己画模型，或者挑别人的模型时，有三处最容易出问题：壁太薄打不出来，缝太小粘在一起，贴着板的圆角会塌。0.4 毫米的喷嘴挤出来的线大约 0.42 毫米宽，这几条规矩都从这个数字来。</p>
+      <div class="bench">
+        <div class="stage" id="st10"><span class="hint">拖动旋转</span></div>
+        <div class="panel">
+          <h3>哪一条</h3>
+          <div class="seg" id="ruleBtns">
+            <button type="button" data-r="wall" aria-pressed="true">壁厚</button>
+            <button type="button" data-r="gap" aria-pressed="false">间隙</button>
+            <button type="button" data-r="edge" aria-pressed="false">贴板的边</button>
+          </div>
+          <div class="field" id="ruleField">
+            <label for="ruleVal"><span id="ruleLab">壁的厚度</span> <output id="ruleOut">1.2 mm</output></label>
+            <input type="range" id="ruleVal" min="0.2" max="3" step="0.1" value="1.2">
+          </div>
+          <div class="seg" id="edgeBtns" hidden>
+            <button type="button" data-e="sharp" aria-pressed="false">直角</button>
+            <button type="button" data-e="fillet" aria-pressed="true">圆角</button>
+            <button type="button" data-e="chamfer" aria-pressed="false">倒角</button>
+          </div>
+          <p class="note" id="ruleNote"></p>
+        </div>
+      </div>
+      <div class="where"><b>在 Bambu Studio 里</b>这些是画模型时就要定的，切片软件里没有对应的开关。能做的是检查：切片后在“预览”页面把右侧的层滑块往下拖，看太薄的地方是不是只剩一条线或者干脆消失了。那个镂空奖杯的字母笔画是 2.6 毫米，背面两条边特意做成小圆角，就是照着这几条定的。</div>
+    </section>
+
+    <section class="ch" id="ch11">
+      <h2>故障图鉴：看症状，找原因</h2>
+      <p class="lead">打坏了不用慌，大多数毛病长得很有辨识度。点一个症状，看它是什么样、通常为什么、先试什么。</p>
+      <div class="bench">
+        <div class="stage" id="st11"><span class="hint">拖动旋转</span></div>
+        <div class="panel">
+          <h3>症状</h3>
+          <div class="chips" id="symBtns"></div>
+          <div class="fix" id="symBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ch" id="ch12">
+      <h2>日常维护：几件小事，按时做</h2>
+      <p class="lead">打印机里全是会动的金属件，不养护会生锈、发涩，打印质量慢慢变差。下面的清单可以勾选，勾选状态只存在你这台设备的浏览器里。带“在模型上看”的，点一下会跳回第 1 章，把那个部件点亮。</p>
+      <div class="bench solo">
+        <div class="todo" id="todo">
+          <section>
+            <h3>每次打印</h3>
+            <ul>
+              <li><input type="checkbox" id="t1"><label for="t1">开打前看一眼打印板<span>板上没有上次留下的料渣，没有手印。</span></label><button class="link" type="button" data-part="bed">在模型上看</button></li>
+              <li><input type="checkbox" id="t2"><label for="t2">打完等板子凉了再取件<span>凉了之后把板子轻轻一弯，东西自己会弹下来。</span></label><span></span></li>
+              <li><input type="checkbox" id="t3"><label for="t3">清掉喷嘴上挂的细丝和废料<span>用镊子，不要用手，也不要用金属去刮喷嘴尖。</span></label><button class="link" type="button" data-part="nozzleA">在模型上看</button></li>
+            </ul>
+          </section>
+          <section>
+            <h3>觉得粘不住的时候</h3>
+            <ul>
+              <li><input type="checkbox" id="t4"><label for="t4">用热水和洗洁精洗打印板<span>用手或海绵软的那面搓，冲净擦干，之后只捏边缘。</span></label><button class="link" type="button" data-part="bed">在模型上看</button></li>
+            </ul>
+          </section>
+          <section>
+            <h3>机器提醒的时候</h3>
+            <ul>
+              <li><input type="checkbox" id="t5"><label for="t5">给丝杆抹润滑脂<span>先擦掉旧油和灰，每根抹一点，让热床上下走几个来回带匀。</span></label><button class="link" type="button" data-part="screw">在模型上看</button></li>
+              <li><input type="checkbox" id="t6"><label for="t6">给光杆和惰轮上润滑油<span>是那瓶液体的油，不是膏状的脂，两样别用反。</span></label><button class="link" type="button" data-part="head">在模型上看</button></li>
+              <li><input type="checkbox" id="t7"><label for="t7">升级固件<span>升级过程中不要断电。</span></label><button class="link" type="button" data-part="screen">在模型上看</button></li>
+            </ul>
+          </section>
+          <section>
+            <h3>每隔一段时间</h3>
+            <ul>
+              <li><input type="checkbox" id="t8"><label for="t8">检查易损件<span>擦嘴块、切刀、送料管有没有磨损或变形，坏了就换。</span></label><button class="link" type="button" data-part="tube">在模型上看</button></li>
+              <li><input type="checkbox" id="t9"><label for="t9">清洁风扇和摄像头<span>风扇吹掉灰；摄像头用无纺布蘸一点酒精轻轻擦。</span></label><span></span></li>
+              <li><input type="checkbox" id="t10"><label for="t10">换 AMS 里的干燥剂<span>干燥剂吸饱了水就不起作用，耗材会受潮。</span></label><button class="link" type="button" data-part="ams">在模型上看</button></li>
+              <li><input type="checkbox" id="t11"><label for="t11">换空气滤芯<span>用久了过滤效果下降，机器会提示。</span></label><button class="link" type="button" data-part="chamber">在模型上看</button></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+      <div class="where"><b>在 Bambu Studio 里</b>“设备”页面左侧的“助手 (HMS)”会列出机器的提醒，比如“请清洁并润滑丝杆”；“固件更新”也在同一列。做完保养后，要在打印机屏幕上对应的提醒页点“完成”，计时才会重新开始。</div>
+    </section>
+
+    <section class="ch" id="ch13">
+      <h2>软件全景：打开 Bambu Studio 时照着查</h2>
+      <p class="lead">前面每章认识了软件里的一小块，这里把“工艺”区域的四个标签页拼到一起。切换标签，点任何一行，看它是什么、默认是多少、讲它的是哪一章。</p>
+      <div class="app">
+        <div class="app-body"><div class="mock" id="mock13"></div><div class="app-info" id="mock13Info" aria-live="polite"></div></div>
+      </div>
+      <h3 style="margin:12px 0 0;font-size:17px;font-weight:600">从打开软件到开始打印</h3>
+      <ol class="steps">
+        <li><b>导入模型</b>把 STL 或 3MF 文件拖进“准备”页面。</li>
+        <li><b>摆放</b>用“自动朝向”或“选择底面”，尽量让悬空最少。</li>
+        <li><b>选耗材</b>点“同步信息”，让软件读取机器里实际装的料。</li>
+        <li><b>选工艺</b>没有特别要求就用 0.20mm Standard。</li>
+        <li><b>切片</b>点“切片单盘”，看预计时间和用料。</li>
+        <li><b>检查预览</b>拖层滑块，看第一层和薄的地方。</li>
+        <li><b>发送</b>点“打印单盘”，确认耗材对应的槽位，发送。</li>
+      </ol>
+    </section>
+
+    <p class="foot">软件界面是照着 Bambu Studio 2.9 中文版画的示意，不是真的软件；选项的名称和位置可能随版本变化。3D 模型是为了讲清原理画的示意，用料和时间都是粗略估算，以切片结果为准。本页面是个人学习笔记，与 Bambu Lab 没有关联。</p>
   </main>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script>
-(function () {
-  "use strict";
-  var $ = function (id) { return document.getElementById(id); };
-  var each = function (list, fn) { Array.prototype.forEach.call(list, fn); };
-
-  /* 目录跟随滚动高亮 */
-  var links = {};
-  each(document.querySelectorAll("#tocList a"), function (a) { links[a.getAttribute("href").slice(1)] = a; });
-  var spy = new IntersectionObserver(function (es) {
-    es.forEach(function (e) { if (e.isIntersecting) { for (var k in links) links[k].setAttribute("aria-current", k === e.target.id ? "true" : "false"); } });
-  }, { rootMargin: "-25% 0px -65% 0px" });
-  each(document.querySelectorAll(".ch"), function (s) { spy.observe(s); });
-
-  /* 第 3 章“在软件里”：界面示意，和层高滑块双向联动 */
-  (function () {
-    var INFO = {
-      preset: ["工艺预设", "now", "这章讲的", "一整套参数的打包，名字开头的数字就是层高。换一个预设会同时换掉几十个配套的参数，所以想改层高，直接换预设最稳。", "0.20mm Standard", "想要更细腻的弧面就选数字小的，想快就选数字大的。"],
-      lh: ["层高", "now", "这章讲的", "每一层的厚度，就是上面滑块拨的那个数。也可以不换预设、直接在这一栏改数字，但那样只改了这一项，其他和层高配套的参数不会跟着变。", "0.2 mm", "0.4 mm 的喷嘴，常用范围是 0.08 到 0.28 mm。"],
-      first: ["首层层高", "later", "第 7 章会讲", "第一层单独的厚度。第一层要贴牢打印板，所以单独设置，一般不比正常层更薄。", "0.2 mm", "基本不用动。"],
-      mix: ["混色子层", "skip", "新手不用管", "一个实验性的调色功能：把一层再分成更薄的子层，每个子层用不同颜色的料，叠出一种新颜色。至少要装两种颜色的耗材才用得上。", "不勾选", "只有一卷料时保持不勾选。"],
-      seam: ["接缝位置", "later", "第 4 章会讲", "喷嘴每画完一圈外墙，起点和终点接头的地方会留一个小痕迹。这里决定把这个痕迹放在哪。", "对齐", "想把痕迹藏到背面时改成“背面”。"],
-      top1: ["顶面单层墙", "later", "第 4 章会讲", "打到模型的顶面时，外圈只画一圈墙，把更多面积留给顶面的填充线，平顶会更好看。", "顶面", "基本不用动。"],
-      first1: ["首层仅单层墙", "skip", "新手不用管", "第一层只画一圈外墙，其余全用底面的填充线。", "不勾选", "基本不用动。"]
-    };
-    var box = $("appInfo3"), rows = document.querySelectorAll("#app3 [data-k]"), sel = $("mockPreset");
-    function show(k) {
-      each(rows, function (r) { r.setAttribute("aria-pressed", r.dataset.k === k ? "true" : "false"); });
-      var d = INFO[k]; box.textContent = "";
-      function add(tag, text, cls) { var e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; box.appendChild(e); return e; }
-      add("span", d[2], "tag " + d[1]); add("h4", d[0]); add("p", d[3]);
-      var dl = document.createElement("dl");
-      [["默认值", d[4]], ["什么时候改", d[5]]].forEach(function (p) { var dt = document.createElement("dt"); dt.textContent = p[0]; var dd = document.createElement("dd"); dd.textContent = p[1]; dl.appendChild(dt); dl.appendChild(dd); });
-      box.appendChild(dl);
-    }
-    each(rows, function (r) { r.addEventListener("click", function () { show(r.dataset.k); }); });
-    sel.addEventListener("change", function () { $("lh").value = sel.value; $("lh").dispatchEvent(new Event("input")); show("preset"); });
-    window.p3dSync = function (lh) { sel.value = lh.toFixed(2); $("mockLh").textContent = String(+lh.toFixed(2)); };
-    show("lh");
-  })();
-
-  if (!window.THREE || !THREE.OrbitControls) {
-    each(document.querySelectorAll(".stage"), function (el) {
-      var d = document.createElement("div"); d.className = "fail"; d.textContent = "3D 演示没能加载。请检查网络后刷新页面。"; el.appendChild(d);
-    });
-    return;
-  }
-
-  /* ---------- 3D 基础 ---------- */
-  var PI = Math.PI;
-  var AMBER = 0xD9912B, AMBER_LIGHT = 0xEDC27A, AMBER_DEEP = 0xC47E1E, GOLD = 0xA08A4C, BODY = 0x4A4E55, BODY_DARK = 0x33363B,
-      STEEL = 0xB4BAC3, BRASS = 0xC9A23A, BLUE = 0x5B8DB8, RED = 0xD8432E, GREY = 0x8A94A1, WHITE = 0xE9EAEE;
-  var stages = [];
-  var io = new IntersectionObserver(function (es) { es.forEach(function (e) { var s = e.target._stage; if (s) { s.visible = e.isIntersecting; s.dirty = true; } }); }, { rootMargin: "120px" });
-  function mat(color, extra) { var o = { color: color, roughness: 0.62, metalness: 0.04 }; if (extra) for (var k in extra) o[k] = extra[k]; return new THREE.MeshStandardMaterial(o); }
-  function metal(color) { return mat(color, { metalness: 0.75, roughness: 0.32 }); }
-  function glass(op) { return mat(0x9FB2C6, { transparent: true, opacity: op, depthWrite: false, roughness: 0.15 }); }
-  function sh(m) { m.castShadow = true; m.receiveShadow = true; return m; }
-  // 圆角盒：w(x) × h(y) × d(z)，四条竖边圆角 r，上下边带小倒角
-  function rb(w, h, d, r, b) {
-    b = b === undefined ? 0.12 : b; r = Math.min(r, w / 2 - b - 0.01, d / 2 - b - 0.01);
-    var x = w / 2 - r - b, z = d / 2 - r - b, s = new THREE.Shape();
-    s.absarc(x, z, r, 0, PI / 2, false); s.absarc(-x, z, r, PI / 2, PI, false); s.absarc(-x, -z, r, PI, PI * 1.5, false); s.absarc(x, -z, r, PI * 1.5, PI * 2, false);
-    var g = new THREE.ExtrudeGeometry(s, { depth: Math.max(0.01, h - 2 * b), bevelEnabled: b > 0, bevelThickness: b, bevelSize: b, bevelSegments: 2, curveSegments: 6 });
-    g.rotateX(-PI / 2); g.center(); return g;
-  }
-  function cyl(r, len, seg) { return new THREE.CylinderGeometry(r, r, len, seg || 32); }
-  function makeStage(el, cam, target, ext) {
-    var r = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
-    el.insertBefore(r.domElement, el.firstChild);
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(32, 4 / 3, 0.5, 800);
-    camera.position.set(cam[0], cam[1], cam[2]);
-    var ctl = new THREE.OrbitControls(camera, r.domElement);
-    ctl.target.set(target[0], target[1], target[2]); ctl.enableZoom = false; ctl.enablePan = false; ctl.maxPolarAngle = PI * 0.56; ctl.update();
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x80868f, 0.72));
-    var key = new THREE.DirectionalLight(0xffffff, 0.62); key.position.set(ext * 0.9, ext * 1.9, ext * 1.2); key.castShadow = true;
-    key.shadow.mapSize.set(1536, 1536); key.shadow.bias = -0.0006; key.shadow.radius = 4;
-    var c = key.shadow.camera; c.left = -ext; c.right = ext; c.top = ext; c.bottom = -ext; c.near = 1; c.far = ext * 6; scene.add(key);
-    var fill = new THREE.DirectionalLight(0xdfe8ff, 0.22); fill.position.set(-ext, ext * 0.6, -ext * 0.5); scene.add(fill);
-    var floor = new THREE.Mesh(new THREE.PlaneGeometry(ext * 8, ext * 8), new THREE.ShadowMaterial({ opacity: 0.16 }));
-    floor.rotation.x = -PI / 2; floor.position.y = -0.42; floor.receiveShadow = true; scene.add(floor);
-    var s = { el: el, r: r, scene: scene, camera: camera, ctl: ctl, floor: floor, dirty: true, visible: false, tick: null };
-    ctl.addEventListener("change", function () { s.dirty = true; });
-    new ResizeObserver(function () {
-      var w = el.clientWidth, h = el.clientHeight; if (!w || !h) return;
-      r.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); s.dirty = true;
-    }).observe(el);
-    el._stage = s; io.observe(el); stages.push(s); return s;
-  }
-  // 打印板：金色纹理板 + 深色热床 + 前沿的小把手
-  function plate(scene, size) {
-    var g = new THREE.Group();
-    var top = sh(new THREE.Mesh(rb(size, 0.22, size, 0.9, 0.05), mat(GOLD, { roughness: 0.92 }))); top.position.y = -0.11; g.add(top);
-    var tab = sh(new THREE.Mesh(rb(size * 0.22, 0.22, 1.2, 0.3, 0.05), mat(GOLD, { roughness: 0.92 }))); tab.position.set(0, -0.11, size / 2 + 0.3); g.add(tab);
-    var bed = sh(new THREE.Mesh(rb(size + 0.5, 0.6, size + 0.5, 1, 0.08), mat(BODY_DARK))); bed.position.y = -0.52; g.add(bed);
-    scene.add(g); return g;
-  }
-  // 喷嘴组件：加热块 + 硅胶套 + 黄铜嘴
-  function nozzleUnit(tip) {
-    var g = new THREE.Group();
-    var sock = sh(new THREE.Mesh(rb(1.25, 1.25, 1.25, 0.25, 0.08), mat(0x2C2E33, { roughness: 0.85 }))); sock.position.y = 1.3; g.add(sock);
-    var neck = sh(new THREE.Mesh(cyl(0.3, 0.4, 16), metal(tip))); neck.position.y = 0.55; g.add(neck);
-    var cone = sh(new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.5, 20), metal(tip))); cone.rotation.x = PI; cone.position.y = 0.25; g.add(cone);
-    return g;
-  }
-  function clear(group) { while (group.children.length) { var c = group.children.pop(); if (c.geometry) c.geometry.dispose(); } }
-  function press(container, btn) { each(container.querySelectorAll("button"), function (b) { b.setAttribute("aria-pressed", b === btn ? "true" : "false"); }); }
-  function setInfo(el, title, text) { el.textContent = ""; var b = document.createElement("b"); b.textContent = title; el.appendChild(b); el.appendChild(document.createTextNode(text)); }
-
-  /* ---------- 第 1 章：机器 ---------- */
-  (function () {
-    var s = makeStage($("st1"), [62, 40, 80], [1.5, 18.5, 0], 34);
-    s.floor.position.y = -0.02;
-    var g = new THREE.Group(); s.scene.add(g);
-    var parts = {};
-    var INFO = {
-      bed: ["热床和打印板", "底部那块会发热、会升降的平板。金色的那层是可以取下来的打印板，东西就长在它上面。打 PLA 时加热到 55 ℃ 左右，让第一层粘得住。"],
-      head: ["打印头", "装着喷嘴、风扇和挤料电机的那个方盒子，沿着上方的导轨左右、前后移动。"],
-      nozzleA: ["主喷嘴（左）", "把塑料线加热到两百多度再挤出来的小孔，直径 0.4 毫米。它接着顶上的 AMS，大多数打印都用它。"],
-      nozzleB: ["辅助喷嘴（右）", "第二个喷嘴，接着侧面的外挂料盘。常用来打第二种颜色或者专门的支撑材料。"],
-      screw: ["丝杆", "三根带螺纹的金属杆，转动时带着热床上下移动。需要定期抹润滑脂，机器会提醒。"],
-      ams: ["AMS 料盒", "顶上的透明盒子，四个槽位，自动把耗材送到主喷嘴，也负责多色打印时换料。盖着盖子能防潮，还能烘干耗材。"],
-      spool: ["外挂料盘", "挂在机器侧面的料架，通过另一根管子把耗材送到辅助喷嘴。"],
-      tube: ["送料管", "两根白色的软管。耗材在管子里被推着走，从料盘一路送到打印头。"],
-      screen: ["屏幕", "触摸屏。选文件、进退料、看报错都在这里，这些操作在电脑和手机上也能做。"],
-      chamber: ["腔体", "整台机器是封闭的。关着门打印更稳定，里面的滤芯会过滤颗粒和气味。"]
-    };
-    function reg(key, mesh, parent) { mesh.userData.part = key; (parts[key] = parts[key] || []).push(mesh); (parent || g).add(mesh); return mesh; }
-    function solid(key, geo, color, pos, parent, extra) { var m = reg(key, sh(new THREE.Mesh(geo, extra || mat(color))), parent); m.position.set(pos[0], pos[1], pos[2]); return m; }
-
-    // 机身：底座、四根立柱、顶部框、后墙、玻璃门和侧窗、玻璃上盖
-    solid("chamber", rb(28.5, 3, 28.5, 2.2), BODY, [0, 1.5, 0]);
-    [[-13, -13], [13, -13], [-13, 13], [13, 13]].forEach(function (p) { solid("chamber", rb(2.5, 26, 2.5, 0.8), BODY, [p[0], 16, p[1]]); });
-    solid("chamber", rb(28.5, 4.6, 2.5, 0.8), BODY, [0, 28.7, 13]);
-    solid("chamber", rb(28.5, 2.4, 2.5, 0.8), BODY, [0, 29.8, -13]);
-    [-13, 13].forEach(function (x) { solid("chamber", rb(2.5, 2.4, 24, 0.8), BODY, [x, 29.8, 0]); });
-    solid("chamber", rb(24, 26, 0.6, 0.2), BODY_DARK, [0, 16, -13.6]);
-    [[24, 23.4, 0.25, 0, 14.7, 13.9], [0.25, 26, 24, -13.9, 16, 0], [0.25, 26, 24, 13.9, 16, 0], [24.5, 0.25, 24.5, 0, 31.05, 0]].forEach(function (p) {
-      var m = reg("chamber", new THREE.Mesh(new THREE.BoxGeometry(p[0], p[1], p[2]), glass(0.1))); m.position.set(p[3], p[4], p[5]); m.userData.glass = true;
-    });
-    [[-11, -11], [11, -11], [-11, 11], [11, 11]].forEach(function (p) { var f = sh(new THREE.Mesh(cyl(1.1, 0.5, 20), mat(0x26282C))); f.position.set(p[0], -0.2, p[1]); g.add(f); });
-
-    // 屏幕
-    var scr = new THREE.Group(); scr.position.set(-7.6, 29.2, 14.6); scr.rotation.x = -0.22; g.add(scr);
-    reg("screen", sh(new THREE.Mesh(rb(8.4, 0.7, 5, 0.6), mat(0x202227))), scr).rotation.x = PI / 2;
-    var disp = reg("screen", new THREE.Mesh(new THREE.PlaneGeometry(7.2, 3.9), mat(0x18222E, { emissive: 0x2C5F8A, emissiveIntensity: 0.55, roughness: 0.3 })), scr); disp.position.z = 0.37; disp.userData.keep = true;
-
-    // 热床组件
-    var bed = new THREE.Group(); g.add(bed);
-    reg("bed", sh(new THREE.Mesh(rb(21.6, 0.22, 21.6, 0.9, 0.05), mat(GOLD, { roughness: 0.92 }))), bed).position.y = -0.11;
-    reg("bed", sh(new THREE.Mesh(rb(5, 0.22, 1.2, 0.3, 0.05), mat(GOLD, { roughness: 0.92 }))), bed).position.set(0, -0.11, 11.1);
-    reg("bed", sh(new THREE.Mesh(rb(22.2, 0.7, 22.2, 1, 0.08), mat(BODY_DARK))), bed).position.y = -0.58;
-    reg("bed", sh(new THREE.Mesh(rb(25.6, 0.9, 2.4, 0.4), mat(0x5B6068))), bed).position.set(0, -1.4, 6);
-    reg("bed", sh(new THREE.Mesh(rb(2.4, 0.9, 19, 0.4), mat(0x5B6068))), bed).position.set(0, -1.4, -3.5);
-
-    // 丝杆：光杆 + 螺纹
-    [[-12.2, 6], [12.2, 6], [0, -12.2]].forEach(function (p) {
-      var rod = reg("screw", sh(new THREE.Mesh(cyl(0.34, 24.5, 16), metal(STEEL)))); rod.position.set(p[0], 15.2, p[1]);
-      var pts = [], turns = 34;
-      for (var i = 0; i <= turns * 10; i++) { var a = i / 10 * PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * 0.4, -12 + 24 * i / (turns * 10), Math.sin(a) * 0.4)); }
-      var th = reg("screw", new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), turns * 10, 0.09, 5, false), metal(0x8E959F))); th.position.copy(rod.position);
-      var nut = reg("screw", sh(new THREE.Mesh(cyl(0.9, 1.2, 20), mat(0x2A2C30))), bed); nut.position.set(p[0], -1.4, p[1]);
-    });
-
-    // 龙门：两侧 Y 导轨、X 横梁（随打印头前后移动）
-    [-11.2, 11.2].forEach(function (x) { var r = sh(new THREE.Mesh(cyl(0.3, 23, 16), metal(STEEL))); r.rotation.x = PI / 2; r.position.set(x, 26.6, 0); g.add(r); });
-    var gantry = new THREE.Group(); g.add(gantry);
-    [26.9, 25.3].forEach(function (y) { var r = sh(new THREE.Mesh(cyl(0.28, 22.4, 16), metal(STEEL))); r.rotation.z = PI / 2; r.position.set(0, y, 0); gantry.add(r); });
-    [-11.2, 11.2].forEach(function (x) { var b = sh(new THREE.Mesh(rb(1.6, 2.8, 2.4, 0.4), mat(BODY_DARK))); b.position.set(x, 26.2, 0); gantry.add(b); });
-
-    // 打印头
-    var head = new THREE.Group(); gantry.add(head);
-    reg("head", sh(new THREE.Mesh(rb(5.2, 5.6, 4.2, 0.9), mat(0x55595F))), head).position.set(0, 24.2, 0.6);
-    var fan = reg("head", new THREE.Mesh(cyl(1.55, 0.24, 36), mat(0x2A2C30)), head); fan.rotation.x = PI / 2; fan.position.set(0, 24.4, 2.76);
-    var hub = reg("head", new THREE.Mesh(cyl(0.6, 0.3, 24), mat(0x6A6F77)), head); hub.rotation.x = PI / 2; hub.position.set(0, 24.4, 2.8);
-    var lamp = reg("head", new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.42, 0.12), mat(0xE8ECF2, { emissive: 0xffffff, emissiveIntensity: 0.6 })), head); lamp.position.set(0, 26.5, 2.72); lamp.userData.keep = true;
-    function addNozzle(key, x, tip) {
-      var n = nozzleUnit(tip); n.position.set(x, 19.2, 0.6); head.add(n);
-      n.children.forEach(function (m) { m.userData.part = key; (parts[key] = parts[key] || []).push(m); });
-    }
-    addNozzle("nozzleA", -1.2, BRASS); addNozzle("nozzleB", 1.2, STEEL);
-
-    // AMS：底座、透明罩、进料器、一卷黑色耗材
-    solid("ams", rb(24.5, 3.4, 17.5, 1.8), 0x3E4248, [0, 32.9, -1]);
-    var cover = reg("ams", new THREE.Mesh(rb(24.5, 6.6, 17.5, 1.8), glass(0.16))); cover.position.set(0, 37.9, -1); cover.userData.glass = true;
-    for (var i = 0; i < 4; i++) {
-      var x = -8.1 + i * 5.4;
-      solid("ams", rb(2.4, 2.6, 2.4, 0.5), 0x6A6F77, [x, 35.2, 5.6]);
-      var fun = solid("ams", cyl(0.42, 0.5, 16), WHITE, [x, 36.7, 5.6]);
-      var ax = solid("ams", cyl(0.35, 4.2, 12), 0x55595F, [x, 34.9, -4.4]); ax.rotation.z = PI / 2;
-    }
-    function spool(key, parent, x, y, z, fil, core) {
-      var grp = new THREE.Group(); grp.position.set(x, y, z); grp.rotation.z = PI / 2; parent.add(grp);
-      [-1.75, 1.75].forEach(function (o) { var f = sh(new THREE.Mesh(cyl(3.7, 0.22, 44), mat(WHITE))); f.position.y = o; f.userData.part = key; parts[key].push(f); grp.add(f); });
-      var w = sh(new THREE.Mesh(cyl(3.25, 3.3, 44), mat(fil, { roughness: 0.5 }))); w.userData.part = key; parts[key].push(w); grp.add(w);
-      var c = new THREE.Mesh(cyl(1.3, 3.8, 24), mat(core)); c.userData.part = key; parts[key].push(c); grp.add(c);
-    }
-    spool("ams", g, -8.1, 37.6, -1.2, 0x26282C, 0x9AA1AB);
-
-    // 外挂料盘
-    parts.spool = [];
-    var arm = solid("spool", cyl(0.5, 5, 16), 0x3E4248, [16.4, 21, 0]); arm.rotation.z = PI / 2;
-    spool("spool", g, 17.4, 21, 0, 0xE3E5E9, 0x9AA1AB);
-
-    // 送料管（随打印头移动重画）
-    var tubeMat = mat(0xF2F3F5, { transparent: true, opacity: 0.82, roughness: 0.4 }), tubes = [];
-    function drawTubes(hx, hz) {
-      tubes.forEach(function (t) { g.remove(t); t.geometry.dispose(); }); tubes = [];
-      [[[-2, 33.2, -9.6], [-3, 31.4, -11.4], [-2.5, 29.6, -9], [hx - 0.9, 28.6, hz - 1], [hx - 0.9, 27, hz + 0.4]],
-       [[17.4, 24.8, 0], [16.5, 29, -2], [13, 30.4, -6], [hx + 3, 29.2, hz - 2], [hx + 0.9, 27, hz + 0.4]]].forEach(function (p) {
-        var curve = new THREE.CatmullRomCurve3(p.map(function (v) { return new THREE.Vector3(v[0], v[1], v[2]); }));
-        var t = new THREE.Mesh(new THREE.TubeGeometry(curve, 40, 0.2, 8, false), tubeMat); t.userData.part = "tube"; g.add(t); tubes.push(t);
-      });
-      parts.tube = tubes;
-    }
-
-    var bedY = 19.25, headX = 0, headZ = 0, selected = null;
-    function place() { bed.position.y = bedY; gantry.position.z = headZ; head.position.x = headX; drawTubes(headX, headZ); if (selected === "tube") paintSel(); }
-    function paintSel() {
-      for (var k in parts) parts[k].forEach(function (m) {
-        if (m.userData.glass) { m.material.opacity = k === selected ? 0.3 : (k === "ams" ? 0.16 : 0.1); return; }
-        if (m.userData.keep || !m.material.emissive) return;
-        m.material.emissive.setHex(k === selected ? 0x0B5CAD : 0x000000); m.material.emissiveIntensity = k === selected ? 0.9 : 1;
-      });
-      tubeMat.emissive.setHex(selected === "tube" ? 0x0B5CAD : 0x000000);
-    }
-    function select(key) {
-      selected = key; paintSel(); setInfo($("partInfo"), INFO[key][0], INFO[key][1]);
-      each($("partBtns").children, function (b) { b.setAttribute("aria-pressed", b.dataset.part === key ? "true" : "false"); });
-      s.dirty = true;
-    }
-    place();
-    ["bed", "head", "nozzleA", "nozzleB", "screw", "ams", "spool", "tube", "screen", "chamber"].forEach(function (k) {
-      var b = document.createElement("button"); b.type = "button"; b.dataset.part = k; b.textContent = INFO[k][0]; b.setAttribute("aria-pressed", "false");
-      b.addEventListener("click", function () { select(k); }); $("partBtns").appendChild(b);
-    });
-    var ray = new THREE.Raycaster(), down = null;
-    s.r.domElement.addEventListener("pointerdown", function (e) { down = [e.clientX, e.clientY]; });
-    s.r.domElement.addEventListener("pointerup", function (e) {
-      if (!down || Math.abs(e.clientX - down[0]) + Math.abs(e.clientY - down[1]) > 6) return;
-      var rc = s.r.domElement.getBoundingClientRect();
-      ray.setFromCamera(new THREE.Vector2((e.clientX - rc.left) / rc.width * 2 - 1, -((e.clientY - rc.top) / rc.height) * 2 + 1), s.camera);
-      var hits = ray.intersectObjects(g.children, true).filter(function (h) { return h.object.userData.part; });
-      if (!hits.length) return;
-      var inner = hits.filter(function (h) { return !h.object.userData.glass; })[0];
-      select((inner || hits[0]).object.userData.part);
-    });
-    var t0 = null;
-    $("playMachine").addEventListener("click", function () {
-      if (t0 !== null) { t0 = null; s.tick = null; this.textContent = "演示打印时的动作"; bedY = 19.25; headX = 0; headZ = 0; place(); s.dirty = true; return; }
-      t0 = performance.now(); this.textContent = "停止演示";
-      s.tick = function (now) {
-        var t = (now - t0) / 1000;
-        headX = 7 * Math.cos(t * 1.9); headZ = 6 * Math.sin(t * 1.9); bedY = 19.25 - Math.min(10, t * 0.6); place(); return true;
-      };
-    });
-  })();
-
-  /* ---------- 第 2 章：模型 → 切片 → 打印 ---------- */
-  (function () {
-    var s = makeStage($("st2"), [25, 16, 33], [0, 5.4, 0], 16);
-    plate(s.scene, 17);
-    var H = 12, N = 30, h = H / N;
-    function rad(y) { return 3.3 + 1.35 * Math.sin(y * 0.55 + 0.4) + 0.45 * Math.sin(y * 1.3); }
-    var pts = [new THREE.Vector2(0, 0)];
-    for (var i = 0; i <= 80; i++) { var y = H * i / 80; pts.push(new THREE.Vector2(rad(y), y)); }
-    pts.push(new THREE.Vector2(0, H));
-    var smooth = sh(new THREE.Mesh(new THREE.LatheGeometry(pts, 72), mat(AMBER, { side: THREE.DoubleSide, roughness: 0.45 }))); s.scene.add(smooth);
-    var layers = [], group = new THREE.Group(); s.scene.add(group);
-    for (var k = 0; k < N; k++) {
-      var r = rad((k + 0.5) * h), lp = [new THREE.Vector2(0, 0), new THREE.Vector2(r - 0.1, 0), new THREE.Vector2(r, 0.1), new THREE.Vector2(r, h * 0.86 - 0.1), new THREE.Vector2(r - 0.1, h * 0.86), new THREE.Vector2(0, h * 0.86)];
-      var m = sh(new THREE.Mesh(new THREE.LatheGeometry(lp, 56), mat(AMBER, { roughness: 0.5 }))); m.position.y = k * h + h * 0.07; group.add(m); layers.push(m);
-    }
-    var noz = nozzleUnit(BRASS); s.scene.add(noz);
-    var mode = "model", cur = 15, playing = null;
-    var TEXT = {
-      model: ["模型", "你从网上下载的、或者自己设计的东西。常见的文件格式是 STL 和 3MF。"],
-      slice: ["切片", "软件把模型横着切成一层层薄片，并算好每一层喷嘴怎么走。拖动滑块挑一层看看。"],
-      print: ["打印", "打印机从最底下一层开始，一层压一层地往上堆。拖动滑块，或者点按钮从头播放。"]
-    };
-    function paint() {
-      smooth.visible = mode === "model"; group.visible = mode !== "model"; noz.visible = mode === "print";
-      layers.forEach(function (m, i) {
-        var on = i === cur - 1;
-        if (mode === "slice") { m.visible = true; m.material.color.setHex(on ? RED : AMBER); m.material.transparent = !on; m.material.opacity = on ? 1 : 0.5; m.castShadow = on; }
-        else { m.visible = i < cur; m.material.color.setHex(on ? AMBER_LIGHT : AMBER); m.material.transparent = false; m.material.opacity = 1; m.castShadow = true; }
-        m.material.needsUpdate = true;
-      });
-      if (mode === "print") noz.position.set(rad((cur - 0.5) * h) - 0.1, cur * h, 0);
-      $("layerPick").disabled = mode === "model"; $("playPrint").disabled = mode !== "print";
-      $("layerPickOut").textContent = mode === "model" ? "—" : "第 " + cur + " / " + N + " 层";
-      setInfo($("modeInfo"), TEXT[mode][0], TEXT[mode][1]); s.dirty = true;
-    }
-    function stop() { playing = null; s.tick = null; $("playPrint").textContent = "从第一层开始打"; }
-    each($("modeBtns").children, function (b) {
-      b.addEventListener("click", function () { stop(); mode = b.dataset.mode; press($("modeBtns"), b); if (mode === "print") cur = N; $("layerPick").value = cur; paint(); });
-    });
-    $("layerPick").addEventListener("input", function () { stop(); cur = +this.value; paint(); });
-    $("playPrint").addEventListener("click", function () {
-      if (playing !== null) { stop(); return; }
-      playing = performance.now(); this.textContent = "暂停";
-      s.tick = function (now) {
-        var n = Math.min(N, 1 + Math.floor((now - playing) / 220));
-        if (n !== cur) { cur = n; $("layerPick").value = cur; paint(); }
-        if (n >= N) stop();
-        return true;
-      };
-    });
-    paint();
-  })();
-
-  /* ---------- 第 3 章：层高 ---------- */
-  (function () {
-    var s = makeStage($("st3"), [0, 7, 28], [0, 3, 0], 14);
-    plate(s.scene, 19);
-    var R = 7, H = 6.6, g = new THREE.Group(); s.scene.add(g);
-    var mats = [mat(AMBER, { roughness: 0.5 }), mat(AMBER_DEEP, { roughness: 0.5 })];
-    function build(lh) {
-      clear(g);
-      var n = Math.ceil(H / lh - 1e-9), e = Math.min(0.03, lh * 0.25);
-      for (var i = 0; i < n; i++) {
-        var y0 = i * lh, y1 = Math.min(H, y0 + lh), r = Math.sqrt(Math.max(0.01, R * R - Math.pow((y0 + y1) / 2, 2))), t = y1 - y0;
-        var lp = [new THREE.Vector2(0, 0), new THREE.Vector2(r - e, 0), new THREE.Vector2(r, e), new THREE.Vector2(r, t - e), new THREE.Vector2(r - e, t), new THREE.Vector2(0, t)];
-        var m = sh(new THREE.Mesh(new THREE.LatheGeometry(lp, 72), mats[i % 2])); m.position.y = y0; g.add(m);
-      }
-      $("lhOut").textContent = lh.toFixed(2) + " mm"; $("lhLayers").textContent = n + " 层";
-      if (window.p3dSync) window.p3dSync(lh);
-      var k = 0.2 / lh; $("lhTime").textContent = "约 " + k.toFixed(1) + " 倍";
-      var mins = Math.round(167 * k); $("lhTrophy").textContent = Math.round(40 / lh) + " 层，约 " + Math.floor(mins / 60) + " 小时 " + (mins % 60) + " 分";
-      s.dirty = true;
-    }
-    $("lh").addEventListener("input", function () { build(+this.value); });
-    build(0.2);
-  })();
-
-  /* ---------- 第 5 章：墙和填充 ---------- */
-  (function () {
-    var s = makeStage($("st5"), [46, 44, 58], [0, 3, 0], 30);
-    s.floor.position.y = -0.02;
-    var g = new THREE.Group(); s.scene.add(g);
-    var A = 15, LW = 0.75, HC = 7.5, CR = 1.6, pat = "grid";
-    var mOuter = mat(AMBER, { roughness: 0.5 }), mInner = mat(AMBER_LIGHT, { roughness: 0.5 }), mBase = mat(AMBER_DEEP, { roughness: 0.55 }), mFill = mat(BLUE, { roughness: 0.55 }), mLid = mat(AMBER, { transparent: true, opacity: 0.86, roughness: 0.5 });
-    var fillGeo = new THREE.BoxGeometry(1, HC - 0.3, LW * 0.6);
-    var bottom = sh(new THREE.Mesh(rb(2 * A, 1, 2 * A, CR, 0.05), mBase)); bottom.position.y = 0.5; s.scene.add(bottom);
-    var lid = sh(new THREE.Mesh(rb(2 * A, 1, 2 * A, CR, 0.05), mLid)); lid.position.y = 1 + HC + 0.5; lid.visible = false; s.scene.add(lid);
-    // 一圈墙：圆角矩形环，挤出成墙
-    function loop(half, r, w, m) {
-      var o = new THREE.Shape(), i = new THREE.Path(), hi = half - w, ri = Math.max(0.05, r - w);
-      function rr(p, a, rad) { var c = a - rad; p.absarc(c, c, rad, 0, PI / 2, false); p.absarc(-c, c, rad, PI / 2, PI, false); p.absarc(-c, -c, rad, PI, PI * 1.5, false); p.absarc(c, -c, rad, PI * 1.5, PI * 2, false); }
-      rr(o, half, r); rr(i, hi, ri); o.holes.push(i);
-      var geo = new THREE.ExtrudeGeometry(o, { depth: HC, bevelEnabled: false, curveSegments: 8 }); geo.rotateX(-PI / 2);
-      var mesh = sh(new THREE.Mesh(geo, m)); mesh.position.y = 1; g.add(mesh);
-    }
-    function build() {
-      clear(g);
-      var n = +$("walls").value, d = +$("dens").value / 100;
-      for (var k = 0; k < n; k++) loop(A - k * LW, Math.max(0.1, CR - k * LW), LW * 0.88, k === 0 ? mOuter : mInner);
-      var a = A - n * LW;
-      if (d >= 0.99) { var solid = sh(new THREE.Mesh(new THREE.BoxGeometry(2 * a, HC - 0.3, 2 * a), mFill)); solid.position.y = 1 + (HC - 0.3) / 2; g.add(solid); }
-      else if (d > 0) {
-        var dirs = pat === "lines" ? [45] : pat === "grid" ? [45, 135] : [0, 60, 120], sp = dirs.length * LW * 0.6 / d, list = [];
-        dirs.forEach(function (deg) {
-          var th = deg * PI / 180, dx = Math.cos(th), dz = Math.sin(th), nx = -dz, nz = dx, Rm = a * 1.5;
-          for (var c = -Math.floor(Rm / sp) * sp; c <= Rm; c += sp) {
-            var px = nx * c, pz = nz * c, t0 = -1e9, t1 = 1e9, ok = true;
-            [[px, dx], [pz, dz]].forEach(function (ax) {
-              if (Math.abs(ax[1]) < 1e-9) { if (Math.abs(ax[0]) > a) ok = false; }
-              else { var u = (-a - ax[0]) / ax[1], v = (a - ax[0]) / ax[1]; t0 = Math.max(t0, Math.min(u, v)); t1 = Math.min(t1, Math.max(u, v)); }
-            });
-            if (ok && t1 - t0 > 0.3) list.push([px + dx * (t0 + t1) / 2, pz + dz * (t0 + t1) / 2, t1 - t0, th]);
-          }
-        });
-        var inst = sh(new THREE.InstancedMesh(fillGeo.clone(), mFill, list.length)), o = new THREE.Object3D();
-        list.forEach(function (L, i) { o.position.set(L[0], 1 + (HC - 0.3) / 2, L[1]); o.rotation.set(0, -L[3], 0); o.scale.set(L[2], 1, 1); o.updateMatrix(); inst.setMatrixAt(i, o.matrix); });
-        inst.instanceMatrix.needsUpdate = true; g.add(inst);
-      }
-      lid.visible = $("lid").checked;
-      // 用料估算：真实尺寸 40×40×20 mm，线宽 0.45 mm，上下壳共 1.6 mm，PLA 1.24 g/cm³
-      var wallT = Math.min(n * 0.45, 19), inner = 40 - 2 * wallT;
-      var vol = (1600 - inner * inner) * 20 + inner * inner * 1.6 + inner * inner * 18.4 * d, grams = vol * 1.24 / 1000;
-      $("wallsOut").textContent = n + " 圈"; $("densOut").textContent = Math.round(d * 100) + "%";
-      $("gramsOut").textContent = "约 " + grams.toFixed(1) + " g"; $("solidOut").textContent = Math.round(grams / 39.68 * 100) + "%";
-      var t;
-      if (d === 0) t = ["空心。", "最省料，但顶面没有东西托着，大面积的顶会塌。只适合花瓶这类不封顶的东西。"];
-      else if (d <= 0.2 && n <= 2) t = ["默认水平。", "摆件、外壳、绝大多数日常物品够用。"];
-      else if (n >= 4) t = ["结实。", "墙厚了，抗弯抗摔明显变好。挂钩、支架这类受力件适合这样设。"];
-      else if (d >= 0.6) t = ["很密。", "用料和时间涨得快，强度的提升却不如多加两圈墙划算。"];
-      else t = ["中等。", "比默认结实一些。想再加强，优先加墙层数。"];
-      var el = $("strengthNote"); el.textContent = ""; var b = document.createElement("b"); b.textContent = t[0]; el.appendChild(b); el.appendChild(document.createTextNode(t[1]));
-      s.dirty = true;
-    }
-    ["walls", "dens", "lid"].forEach(function (id) { $(id).addEventListener("input", build); });
-    each($("patBtns").children, function (b) { b.addEventListener("click", function () { pat = b.dataset.pat; press($("patBtns"), b); build(); }); });
-    build();
-  })();
-
-  /* ---------- 第 6 章：摆放和支撑 ---------- */
-  (function () {
-    var s = makeStage($("st6"), [22, 2.6, 30], [0, 4.2, 0], 14);
-    plate(s.scene, 17);
-    var shape = new THREE.Shape();
-    [[-1, 0], [1, 0], [1, 6], [4, 6], [4, 8], [-4, 8], [-4, 6], [-1, 6]].forEach(function (p, i) { if (i) shape.lineTo(p[0], p[1]); else shape.moveTo(p[0], p[1]); });
-    var baseGeo = new THREE.ExtrudeGeometry(shape, { depth: 3, bevelEnabled: false }).toNonIndexed(); baseGeo.translate(0, -4, -1.5);
-    var src = baseGeo.attributes.position.array.slice(), count = src.length / 3;
-    var geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(src.length), 3));
-    geo.setAttribute("color", new THREE.BufferAttribute(new Float32Array(src.length), 3));
-    var mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.5, flatShading: true })); mesh.castShadow = true; s.scene.add(mesh);
-    var outline = new THREE.LineSegments(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0x7A4E10, transparent: true, opacity: 0.55 })); s.scene.add(outline);
-    var supGeo = new THREE.CylinderGeometry(0.09, 0.09, 1, 6), supMat = mat(GREY), sup = null;
-    var cA = new THREE.Color(AMBER), cR = new THREE.Color(RED);
-    function build() {
-      var rx = +$("rx").value, rz = +$("rz").value;
-      $("rxOut").textContent = rx + "°"; $("rzOut").textContent = rz + "°";
-      each($("poseBtns").children, function (b) { b.setAttribute("aria-pressed", (+b.dataset.rx === rx && +b.dataset.rz === rz) ? "true" : "false"); });
-      var m4 = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(rx * PI / 180, 0, rz * PI / 180, "ZXY"));
-      var pos = geo.attributes.position.array, col = geo.attributes.color.array, v = new THREE.Vector3(), minY = 1e9, i;
-      for (i = 0; i < count; i++) { v.set(src[i * 3], src[i * 3 + 1], src[i * 3 + 2]).applyMatrix4(m4); pos[i * 3] = v.x; pos[i * 3 + 1] = v.y; pos[i * 3 + 2] = v.z; if (v.y < minY) minY = v.y; }
-      for (i = 0; i < count; i++) pos[i * 3 + 1] -= minY;
-      var a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), e1 = new THREE.Vector3(), nrm = new THREE.Vector3(), area = 0, cols = [], supVol = 0;
-      for (i = 0; i < count; i += 3) {
-        a.fromArray(pos, i * 3); b.fromArray(pos, i * 3 + 3); c.fromArray(pos, i * 3 + 6);
-        nrm.copy(b).sub(a).cross(e1.copy(c).sub(a)); var ar = nrm.length() / 2; nrm.normalize();
-        var onBed = a.y < 0.02 && b.y < 0.02 && c.y < 0.02, over = !onBed && nrm.y < -0.7, cc = over ? cR : cA;
-        for (var j = 0; j < 3; j++) { col[(i + j) * 3] = cc.r; col[(i + j) * 3 + 1] = cc.g; col[(i + j) * 3 + 2] = cc.b; }
-        if (over) {
-          area += ar; supVol += ar * ((a.y + b.y + c.y) / 3);
-          for (var p = 0, K = 7; p < K; p++) for (var q = 0; q < K - p; q++) {
-            var u = (p + 0.33) / K, w = (q + 0.33) / K, t = 1 - u - w; if (t < 0) continue;
-            var y = a.y * u + b.y * w + c.y * t; if (y > 0.1) cols.push([a.x * u + b.x * w + c.x * t, y, a.z * u + b.z * w + c.z * t]);
-          }
-        }
-      }
-      geo.attributes.position.needsUpdate = true; geo.attributes.color.needsUpdate = true; geo.computeVertexNormals(); geo.computeBoundingSphere();
-      outline.geometry.dispose(); outline.geometry = new THREE.EdgesGeometry(geo, 20);
-      if (sup) { s.scene.remove(sup); sup.geometry.dispose(); sup = null; }
-      if ($("sup").checked && cols.length) {
-        sup = new THREE.InstancedMesh(supGeo.clone(), supMat, cols.length); sup.castShadow = true; var o = new THREE.Object3D();
-        cols.forEach(function (p, k) { o.position.set(p[0], p[1] / 2, p[2]); o.scale.set(1, p[1], 1); o.updateMatrix(); sup.setMatrixAt(k, o.matrix); });
-        sup.instanceMatrix.needsUpdate = true; s.scene.add(sup);
-      }
-      // 把示意单位当作厘米；支撑按 12% 疏密估算
-      var none = area < 0.05;
-      $("ovOut").textContent = none ? "0" : area.toFixed(1) + " cm²";
-      $("supOut").textContent = none ? "不需要" : "约 " + (supVol * 0.12 * 1.24).toFixed(1) + " g";
-      var t2 = none ? ["这样摆不需要任何支撑。", "每一层下面都有东西托着，省料、省时间，表面也最干净。"]
-        : area < 14 ? ["有一部分悬空。", "要么开支撑，要么换个方向。支撑接触的那一面打完会比较粗糙。"]
-        : ["大面积悬空。", "这样摆要打很多支撑，换个方向通常是更好的选择。"];
-      var el = $("poseNote"); el.textContent = ""; var bb = document.createElement("b"); bb.textContent = t2[0]; el.appendChild(bb); el.appendChild(document.createTextNode(t2[1]));
-      s.dirty = true;
-    }
-    ["rx", "rz", "sup"].forEach(function (id) { $(id).addEventListener("input", build); });
-    each($("poseBtns").children, function (b) { b.addEventListener("click", function () { $("rx").value = b.dataset.rx; $("rz").value = b.dataset.rz; build(); }); });
-    build();
-  })();
-
-  /* 渲染循环：只画看得见、且有变化的演示台 */
-  function loop(now) {
-    for (var i = 0; i < stages.length; i++) {
-      var s = stages[i]; if (!s.visible) continue;
-      if (s.tick && s.tick(now)) s.dirty = true;
-      if (s.dirty) { s.r.render(s.scene, s.camera); s.dirty = false; }
-    }
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-})();
-</script>
+<script src="assets/core.js"></script>
+<script src="assets/mocks.js"></script>
+<script src="assets/part1.js"></script>
+<script src="assets/part2.js"></script>
+</body>
+</html>
